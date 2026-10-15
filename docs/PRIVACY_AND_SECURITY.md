@@ -36,9 +36,17 @@ This document outlines data flows, access controls, token lifecycles, and privac
 | `POST_NOTIFICATIONS` | API 33+ | Required to post the persistent foreground service notification. |
 | `FOREGROUND_SERVICE_LOCATION` | API 34+ | Mandatory declaration for Android 14+ location foreground services. |
 | `SEND_SMS` | All | Emergency SMS alerts to primary guardians when data connectivity is absent. |
+| `BIND_QUICK_SETTINGS_TILE` | API 24+ | Allows the system Quick Settings panel to bind to `SosTileService` for locked-screen emergency access. |
 
 ---
 
-## 4. Emergency Helpline Guidance (India)
+## 4. Emergency SMS Dispatch Transparency
+- Direct cellular SMS dispatch (`SEND_SMS`) is only executed when an SOS session is actively in progress and the user has designated contacts with SMS alerting enabled (`notifyBySms = true`).
+- No unsolicited or marketing SMS messages are ever generated.
+- If `SEND_SMS` is denied or unavailable on the device, TapShield gracefully falls back to pre-filled system SMS composer intents (`ACTION_SENDTO`) so the user maintains full control over message dispatch.
+
+---
+
+## 5. Emergency Helpline Guidance (India)
 TapShield explicitly states on the Home and Safety Setup screens:
 > **Notice**: TapShield supplements and does not replace official national emergency response services. In life-threatening emergencies, dial **112** directly.

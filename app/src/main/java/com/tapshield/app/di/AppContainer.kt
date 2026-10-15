@@ -12,12 +12,16 @@ import com.tapshield.app.domain.location.LocationTracker
 import com.tapshield.app.domain.service.SosServiceLauncher
 import com.tapshield.app.service.AndroidSosServiceLauncher
 
+import com.tapshield.app.data.sms.AndroidSmsDispatcher
+import com.tapshield.app.domain.sms.SmsDispatcher
+
 interface AppContainer {
     val database: TapShieldDatabase
     val contactRepository: ContactRepository
     val sosRepository: SosRepository
     val locationTracker: LocationTracker
     val sosServiceLauncher: SosServiceLauncher
+    val smsDispatcher: SmsDispatcher
     val sosCoordinator: SosCoordinator
 }
 
@@ -43,9 +47,15 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
         AndroidSosServiceLauncher(context)
     }
 
+    override val smsDispatcher: SmsDispatcher by lazy {
+        AndroidSmsDispatcher(context)
+    }
+
     override val sosCoordinator: SosCoordinator by lazy {
         SosCoordinator(
             sosRepository = sosRepository,
+            contactRepository = contactRepository,
+            smsDispatcher = smsDispatcher,
             sosServiceLauncher = sosServiceLauncher
         )
     }

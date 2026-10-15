@@ -94,6 +94,9 @@ class SosForegroundService : Service() {
         return START_STICKY
     }
 
+    private var lastReportedNotificationText: String? = null
+    private var lastNotificationUpdateTime: Long = 0L
+
     private fun startLocationPipeline() {
         isTrackingActive = true
         trackingJob?.cancel()
@@ -107,13 +110,13 @@ class SosForegroundService : Service() {
                     }
                     is LocationResult.Error -> {
                         val errorStatus = when (result.type) {
-                            com.tapshield.app.domain.location.LocationErrorType.GPS_DISABLED -> "GPS is turned off"
+                            com.tapshield.app.domain.location.LocationErrorType.GPS_DISABLED -> "GPS hardware disabled in settings"
                             com.tapshield.app.domain.location.LocationErrorType.PERMISSION_DENIED -> "Location permission missing"
-                            com.tapshield.app.domain.location.LocationErrorType.TIMEOUT -> "Acquiring satellite fix..."
-                            com.tapshield.app.domain.location.LocationErrorType.UNAVAILABLE -> "Weak GPS signal"
-                            com.tapshield.app.domain.location.LocationErrorType.STALE_FIX -> "Refreshing GPS fix..."
+                            com.tapshield.app.domain.location.LocationErrorType.TIMEOUT -> "Searching for satellite lock..."
+                            com.tapshield.app.domain.location.LocationErrorType.UNAVAILABLE -> "Acquiring GPS fix (satellite search)"
+                            com.tapshield.app.domain.location.LocationErrorType.STALE_FIX -> "Acquiring fresh GPS lock..."
                         }
-                        updateNotificationText("Status: $errorStatus")
+                        updateNotificationText("GPS Status: $errorStatus")
                     }
                 }
             }
@@ -142,11 +145,23 @@ class SosForegroundService : Service() {
 
     private fun updateNotificationLocation(location: LocationPoint) {
         val timeStr = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date(location.timestamp))
-        val text = "GPS Active: ±${location.accuracyMeters.toInt()}m accuracy • $timeStr"
+        val text = "GPS Active: ±${location.accuracyMeters.toInt()}m • $timeStr"
+        val now = System.currentTimeMillis()
+        if (text == lastReportedNotificationText && now - lastNotificationUpdateTime < 3000L) {
+            return
+        }
+        lastReportedNotificationText = text
+        lastNotificationUpdateTime = now
         notificationManager.notify(NOTIFICATION_ID, buildNotification(text))
     }
 
     private fun updateNotificationText(statusText: String) {
+        val now = System.currentTimeMillis()
+        if (statusText == lastReportedNotificationText && now - lastNotificationUpdateTime < 15000L) {
+            return
+        }
+        lastReportedNotificationText = statusText
+        lastNotificationUpdateTime = now
         notificationManager.notify(NOTIFICATION_ID, buildNotification(statusText))
     }
 
@@ -185,6 +200,7 @@ class SosForegroundService : Service() {
             .setContentIntent(openPendingIntent)
             .addAction(stopAction)
             .setOngoing(true)
+            .setOnlyAlertOnce(true)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)

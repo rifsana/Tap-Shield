@@ -52,6 +52,32 @@
             android:exported="false"
             android:foregroundServiceType="location" />
 
+        <!-- Quick Settings Tile for Locked-Screen / Rapid SOS Access -->
+        <service
+            android:name=".service.SosTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_sos_tile"
+            android:label="@string/tile_sos_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <!-- Home-Screen Emergency Widget Provider -->
+        <receiver
+            android:name=".widget.TapShieldWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.tapshield.app.action.WIDGET_SOS" />
+                <action android:name="com.tapshield.app.action.UPDATE_WIDGET_STATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/tapshield_widget_info" />
+        </receiver>
+
     </application>
 
 </manifest>

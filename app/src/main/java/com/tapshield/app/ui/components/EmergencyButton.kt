@@ -1,5 +1,6 @@
 package com.tapshield.app.ui.components
 
+import android.view.HapticFeedbackConstants
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -11,6 +12,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -24,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -32,89 +35,91 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.tapshield.app.ui.theme.EmergencyRed
-import com.tapshield.app.ui.theme.EmergencyRedPulse
-import com.tapshield.app.ui.theme.ShieldCyan
+import androidx.compose.ui.unit.sp
+import com.tapshield.app.ui.theme.EmergencyCoral
+import com.tapshield.app.ui.theme.EmergencyCoralDark
+import com.tapshield.app.ui.theme.EmergencyCoralPulse
+import com.tapshield.app.ui.theme.SapphireBlue
+import com.tapshield.app.ui.theme.SapphireBlueDark
 
 @Composable
 fun EmergencyButton(
     isArmed: Boolean,
     isCountingDown: Boolean,
     onTrigger: () -> Unit,
-    modifier: Modifier = Modifier,
-    isStealthMode: Boolean = false
+    modifier: Modifier = Modifier
 ) {
+    val view = LocalView.current
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    LaunchedEffect(isPressed) {
+        if (isPressed) {
+            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+        }
+    }
+
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
     val pulseScale by infiniteTransition.animateFloat(
         initialValue = 1f,
-        targetValue = if (isCountingDown) 1.25f else 1.08f,
+        targetValue = if (isCountingDown) 1.2f else 1.05f,
         animationSpec = infiniteRepeatable(
-            animation = tween(if (isCountingDown) 600 else 1800, easing = FastOutSlowInEasing),
+            animation = tween(if (isCountingDown) 500 else 2400, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "pulseScale"
     )
 
-    val mainColor = when {
-        isCountingDown -> EmergencyRed
-        isStealthMode -> MaterialTheme.colorScheme.onSurfaceVariant
-        else -> ShieldCyan
-    }
-
-    val glowColor = when {
-        isCountingDown -> EmergencyRedPulse
-        isStealthMode -> Color.Transparent
-        else -> ShieldCyan.copy(alpha = 0.2f)
-    }
+    val primaryColor = if (isCountingDown) EmergencyCoral else SapphireBlue
+    val primaryDark = if (isCountingDown) EmergencyCoralDark else SapphireBlueDark
+    val pulseColor = if (isCountingDown) EmergencyCoralPulse else SapphireBlue.copy(alpha = 0.12f)
 
     Box(
-        modifier = modifier,
+        modifier = modifier.size(190.dp),
         contentAlignment = Alignment.Center
     ) {
-        // Outer pulsing ring
+        // Subtle ambient ring
         Box(
             modifier = Modifier
-                .size(200.dp)
+                .size(190.dp)
                 .scale(pulseScale)
                 .clip(CircleShape)
-                .background(glowColor)
+                .background(pulseColor)
         )
 
-        // Middle ring border
+        // Outer crisp hairline border
         Box(
             modifier = Modifier
-                .size(165.dp)
+                .size(162.dp)
                 .clip(CircleShape)
                 .border(
-                    BorderStroke(
-                        2.dp,
-                        Brush.radialGradient(
-                            listOf(mainColor.copy(alpha = 0.8f), Color.Transparent)
-                        )
-                    ),
+                    BorderStroke(1.5.dp, primaryColor.copy(alpha = 0.35f)),
                     CircleShape
                 )
         )
 
-        // Main inner interactive circle
+        // Tactile interactive button core
         Box(
             modifier = Modifier
-                .size(135.dp)
+                .size(142.dp)
+                .scale(if (isPressed) 0.94f else 1f)
                 .clip(CircleShape)
                 .background(
                     Brush.verticalGradient(
-                        listOf(
-                            MaterialTheme.colorScheme.surfaceVariant,
-                            MaterialTheme.colorScheme.surface
-                        )
+                        listOf(primaryColor, primaryDark)
                     )
                 )
-                .border(BorderStroke(2.dp, mainColor), CircleShape)
+                .border(BorderStroke(2.dp, Color.White.copy(alpha = 0.25f)), CircleShape)
                 .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
+                    interactionSource = interactionSource,
                     indication = null,
-                    onClick = onTrigger
+                    onClick = {
+                        view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
+                        onTrigger()
+                    }
                 ),
             contentAlignment = Alignment.Center
         ) {
@@ -123,15 +128,18 @@ fun EmergencyButton(
             ) {
                 Icon(
                     imageVector = if (isCountingDown) Icons.Default.Warning else Icons.Default.Shield,
-                    contentDescription = "Activate Shield",
-                    tint = mainColor,
-                    modifier = Modifier.size(42.dp)
+                    contentDescription = "Trigger Emergency SOS",
+                    tint = Color.White,
+                    modifier = Modifier.size(38.dp)
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = if (isCountingDown) "ALERT" else if (isStealthMode) "SCAN" else "SOS",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = mainColor
+                    text = if (isCountingDown) "ALERT" else "SOS",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    ),
+                    color = Color.White
                 )
             }
         }

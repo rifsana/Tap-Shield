@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -35,12 +34,12 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -53,15 +52,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tapshield.app.domain.model.Contact
-import com.tapshield.app.ui.theme.AmberWarning
-import com.tapshield.app.ui.theme.EmergencyRed
-import com.tapshield.app.ui.theme.ShieldCyan
-import com.tapshield.app.ui.theme.ShieldReadyGreen
-import com.tapshield.app.ui.theme.SurfaceBorderDark
-import com.tapshield.app.ui.theme.SurfaceElevatedDark
+import com.tapshield.app.ui.theme.AppRadius
+import com.tapshield.app.ui.theme.AppSpacing
+import com.tapshield.app.ui.theme.AttentionAmber
+import com.tapshield.app.ui.theme.EmergencyCoral
+import com.tapshield.app.ui.theme.SapphireBlue
+import com.tapshield.app.ui.theme.SuccessGreen
 import com.tapshield.app.ui.viewmodel.ContactsViewModel
 
 @Composable
@@ -83,24 +83,24 @@ fun ContactsScreen(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        containerColor = MaterialTheme.colorScheme.background,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { viewModel.openAddContactDialog() },
-                containerColor = ShieldCyan,
-                contentColor = Color.Black,
+                containerColor = SapphireBlue,
+                contentColor = Color.White,
                 shape = CircleShape
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Contact")
+                Icon(Icons.Default.Add, contentDescription = "Add Trusted Guardian")
             }
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
                 .padding(innerPadding)
-                .padding(horizontal = 20.dp, vertical = 16.dp)
+                .padding(horizontal = AppSpacing.lg, vertical = AppSpacing.base)
         ) {
             Text(
                 text = "Trusted Contacts",
@@ -109,12 +109,12 @@ fun ContactsScreen(
                 color = MaterialTheme.colorScheme.onBackground
             )
             Text(
-                text = "Emergency alerts and live location will be dispatched to these guardians",
+                text = "Your emergency broadcast and live GPS link will be sent to these guardians",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(AppSpacing.base))
 
             if (contacts.isEmpty()) {
                 Box(
@@ -125,53 +125,55 @@ fun ContactsScreen(
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(24.dp)
+                        modifier = Modifier.padding(AppSpacing.xl)
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(72.dp)
+                                .size(64.dp)
                                 .clip(CircleShape)
-                                .background(SurfaceElevatedDark),
+                                .background(SapphireBlue.copy(alpha = 0.1f)),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Person,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(36.dp)
+                                tint = SapphireBlue,
+                                modifier = Modifier.size(32.dp)
                             )
                         }
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(AppSpacing.base))
                         Text(
-                            text = "No Trusted Contacts",
+                            text = "No Trusted Guardians Added",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(AppSpacing.xs))
                         Text(
-                            text = "Add at least one guardian so TapShield can alert them during an emergency.",
+                            text = "Add family members or close friends who should receive your emergency alerts and live GPS link during an SOS.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            textAlign = TextAlign.Center
                         )
-                        Spacer(modifier = Modifier.height(20.dp))
+                        Spacer(modifier = Modifier.height(AppSpacing.lg))
                         Button(
                             onClick = { viewModel.openAddContactDialog() },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = ShieldCyan,
-                                contentColor = Color.Black
+                                containerColor = SapphireBlue,
+                                contentColor = Color.White
                             ),
-                            shape = RoundedCornerShape(10.dp)
+                            shape = AppRadius.shapeSm
                         ) {
-                            Text("Add First Guardian", fontWeight = FontWeight.Bold)
+                            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(AppSpacing.xs))
+                            Text("Add Primary Guardian", fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(AppSpacing.md)
                 ) {
                     items(contacts, key = { it.id }) { contact ->
                         ContactItemCard(
@@ -195,7 +197,8 @@ fun ContactsScreen(
             onDismissRequest = { viewModel.dismissDialog() },
             title = {
                 Text(
-                    text = if (state.isEditing) "Edit Contact" else "Add Trusted Contact",
+                    text = if (state.isEditing) "Edit Guardian" else "Add Trusted Guardian",
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -203,18 +206,19 @@ fun ContactsScreen(
             text = {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(AppSpacing.md)
                 ) {
                     OutlinedTextField(
                         value = state.name,
                         onValueChange = { viewModel.updateName(it) },
-                        label = { Text("Name") },
+                        label = { Text("Full Name") },
                         isError = state.nameError != null,
-                        supportingText = state.nameError?.let { { Text(it, color = EmergencyRed) } },
+                        supportingText = state.nameError?.let { { Text(it, color = EmergencyCoral) } },
                         singleLine = true,
+                        shape = AppRadius.shapeSm,
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = ShieldCyan,
-                            unfocusedBorderColor = SurfaceBorderDark
+                            focusedBorderColor = SapphireBlue,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
                         ),
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -222,13 +226,14 @@ fun ContactsScreen(
                     OutlinedTextField(
                         value = state.phoneNumber,
                         onValueChange = { viewModel.updatePhone(it) },
-                        label = { Text("Phone Number (e.g. +91 9876543210)") },
+                        label = { Text("Mobile Number (e.g. +91 9876543210)") },
                         isError = state.phoneError != null,
-                        supportingText = state.phoneError?.let { { Text(it, color = EmergencyRed) } },
+                        supportingText = state.phoneError?.let { { Text(it, color = EmergencyCoral) } },
                         singleLine = true,
+                        shape = AppRadius.shapeSm,
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = ShieldCyan,
-                            unfocusedBorderColor = SurfaceBorderDark
+                            focusedBorderColor = SapphireBlue,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
                         ),
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -236,11 +241,12 @@ fun ContactsScreen(
                     OutlinedTextField(
                         value = state.relationship,
                         onValueChange = { viewModel.updateRelationship(it) },
-                        label = { Text("Relationship (e.g. Mother, Colleague)") },
+                        label = { Text("Relationship (e.g. Mother, Spouse)") },
                         singleLine = true,
+                        shape = AppRadius.shapeSm,
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = ShieldCyan,
-                            unfocusedBorderColor = SurfaceBorderDark
+                            focusedBorderColor = SapphireBlue,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
                         ),
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -252,9 +258,9 @@ fun ContactsScreen(
                         Checkbox(
                             checked = state.isPrimary,
                             onCheckedChange = { viewModel.updateIsPrimary(it) },
-                            colors = CheckboxDefaults.colors(checkedColor = ShieldCyan)
+                            colors = CheckboxDefaults.colors(checkedColor = SapphireBlue)
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(AppSpacing.xs))
                         Text(
                             text = "Set as Primary Guardian",
                             style = MaterialTheme.typography.bodyMedium,
@@ -269,11 +275,11 @@ fun ContactsScreen(
                         Checkbox(
                             checked = state.notifyBySms,
                             onCheckedChange = { viewModel.updateNotifyBySms(it) },
-                            colors = CheckboxDefaults.colors(checkedColor = ShieldCyan)
+                            colors = CheckboxDefaults.colors(checkedColor = SapphireBlue)
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(AppSpacing.xs))
                         Text(
-                            text = "Send SMS alert fallback",
+                            text = "Enable Cellular SMS Dispatch",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -284,12 +290,12 @@ fun ContactsScreen(
                 Button(
                     onClick = { viewModel.saveContact() },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = ShieldCyan,
-                        contentColor = Color.Black
+                        containerColor = SapphireBlue,
+                        contentColor = Color.White
                     ),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = AppRadius.shapeSm
                 ) {
-                    Text(if (state.isEditing) "Save" else "Add", fontWeight = FontWeight.Bold)
+                    Text(if (state.isEditing) "Save" else "Add Guardian", fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
@@ -297,7 +303,8 @@ fun ContactsScreen(
                     Text("Cancel", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             },
-            containerColor = SurfaceElevatedDark
+            shape = AppRadius.shapeMd,
+            containerColor = MaterialTheme.colorScheme.surface
         )
     }
 }
@@ -312,40 +319,45 @@ private fun ContactItemCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = SurfaceElevatedDark
-        ),
+        shape = AppRadius.shapeMd,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         border = BorderStroke(
             1.dp,
-            if (contact.isPrimary) ShieldReadyGreen.copy(alpha = 0.5f) else SurfaceBorderDark
+            if (contact.isPrimary) SuccessGreen.copy(alpha = 0.45f) else MaterialTheme.colorScheme.outline
         )
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(AppSpacing.base),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Initials Avatar
+            val initials = contact.name.trim().split(" ")
+                .mapNotNull { it.firstOrNull()?.toString() }
+                .take(2)
+                .joinToString("")
+                .uppercase()
+
             Box(
                 modifier = Modifier
-                    .size(44.dp)
+                    .size(42.dp)
                     .clip(CircleShape)
                     .background(
-                        if (contact.isPrimary) ShieldReadyGreen.copy(alpha = 0.15f)
-                        else ShieldCyan.copy(alpha = 0.15f)
+                        if (contact.isPrimary) SuccessGreen.copy(alpha = 0.12f)
+                        else SapphireBlue.copy(alpha = 0.1f)
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = null,
-                    tint = if (contact.isPrimary) ShieldReadyGreen else ShieldCyan,
-                    modifier = Modifier.size(24.dp)
+                Text(
+                    text = if (initials.isNotEmpty()) initials else "G",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp,
+                    color = if (contact.isPrimary) SuccessGreen else SapphireBlue
                 )
             }
 
-            Spacer(modifier = Modifier.width(14.dp))
+            Spacer(modifier = Modifier.width(AppSpacing.md))
 
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -356,34 +368,52 @@ private fun ContactItemCard(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     if (contact.isPrimary) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(ShieldReadyGreen.copy(alpha = 0.2f))
-                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                        Spacer(modifier = Modifier.width(AppSpacing.xs))
+                        Surface(
+                            shape = AppRadius.shapePill,
+                            color = SuccessGreen.copy(alpha = 0.12f)
                         ) {
                             Text(
                                 text = "PRIMARY",
-                                fontSize = 10.sp,
+                                fontSize = 9.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = ShieldReadyGreen
+                                color = SuccessGreen,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                             )
                         }
                     }
                 }
 
+                Spacer(modifier = Modifier.height(2.dp))
+
                 Text(
                     text = contact.phoneNumber,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                if (contact.relationship.isNotBlank()) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 2.dp)
+                ) {
+                    if (contact.relationship.isNotBlank()) {
+                        Text(
+                            text = contact.relationship,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "•",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.outline
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                    }
                     Text(
-                        text = contact.relationship,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                        text = if (contact.notifyBySms) "SMS Enabled" else "SMS Disabled",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (contact.notifyBySms) SuccessGreen else AttentionAmber
                     )
                 }
             }
@@ -391,24 +421,26 @@ private fun ContactItemCard(
             IconButton(onClick = onSetPrimary) {
                 Icon(
                     imageVector = if (contact.isPrimary) Icons.Filled.Star else Icons.Outlined.StarBorder,
-                    contentDescription = "Set Primary",
-                    tint = if (contact.isPrimary) AmberWarning else MaterialTheme.colorScheme.onSurfaceVariant
+                    contentDescription = if (contact.isPrimary) "Primary guardian" else "Mark as primary guardian",
+                    tint = if (contact.isPrimary) AttentionAmber else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
             }
 
             IconButton(onClick = onEdit) {
                 Icon(
                     imageVector = Icons.Default.Edit,
-                    contentDescription = "Edit",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    contentDescription = "Edit Guardian",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(18.dp)
                 )
             }
 
             IconButton(onClick = onDelete) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete",
-                    tint = EmergencyRed.copy(alpha = 0.8f)
+                    contentDescription = "Delete Guardian",
+                    tint = EmergencyCoral.copy(alpha = 0.75f),
+                    modifier = Modifier.size(18.dp)
                 )
             }
         }

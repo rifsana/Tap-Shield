@@ -8,41 +8,49 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val DarkColorScheme = darkColorScheme(
-    primary = ShieldCyan,
-    onPrimary = Color(0xFF00363D),
-    primaryContainer = Color(0xFF004F58),
-    onPrimaryContainer = Color(0xFF9CF0FF),
-    secondary = ShieldReadyGreen,
-    onSecondary = Color(0xFF003822),
-    secondaryContainer = ShieldGreenMuted,
-    onSecondaryContainer = Color(0xFF67FEB6),
-    tertiary = EmergencyRedLight,
-    onTertiary = Color(0xFF5E000B),
-    tertiaryContainer = EmergencyRedContainer,
-    onTertiaryContainer = Color(0xFFFFDAD8),
-    background = BackgroundDark,
-    onBackground = TextPrimary,
-    surface = SurfaceDark,
-    onSurface = TextPrimary,
-    surfaceVariant = SurfaceElevatedDark,
-    onSurfaceVariant = TextSecondary,
-    outline = SurfaceBorderDark
+    primary = SapphireBlue,
+    onPrimary = Color.White,
+    primaryContainer = MidnightSurfaceElevated,
+    onPrimaryContainer = SapphireLight,
+    secondary = SuccessGreen,
+    onSecondary = Color.White,
+    secondaryContainer = SuccessGreenDark,
+    onSecondaryContainer = SuccessGreenLight,
+    tertiary = EmergencyCoral,
+    onTertiary = Color.White,
+    tertiaryContainer = EmergencyCoralContainerDark,
+    onTertiaryContainer = EmergencyCoralLight,
+    background = MidnightNavy,
+    onBackground = TextPrimaryDark,
+    surface = MidnightSurface,
+    onSurface = TextPrimaryDark,
+    surfaceVariant = MidnightSurfaceElevated,
+    onSurfaceVariant = TextSecondaryDark,
+    outline = MidnightBorder,
+    outlineVariant = MidnightSurfaceElevated
 )
 
-private val LightColorScheme = darkColorScheme(
-    primary = ShieldCyan,
-    onPrimary = Color(0xFF00363D),
-    primaryContainer = Color(0xFF004F58),
-    onPrimaryContainer = Color(0xFF9CF0FF),
-    secondary = ShieldReadyGreen,
-    onSecondary = Color(0xFF003822),
-    background = BackgroundDark,
-    onBackground = TextPrimary,
-    surface = SurfaceDark,
-    onSurface = TextPrimary,
-    surfaceVariant = SurfaceElevatedDark,
-    onSurfaceVariant = TextSecondary,
-    outline = SurfaceBorderDark
+private val LightColorScheme = lightColorScheme(
+    primary = SapphireBlue,
+    onPrimary = Color.White,
+    primaryContainer = SapphireLight,
+    onPrimaryContainer = SapphireBlueDark,
+    secondary = SuccessGreen,
+    onSecondary = Color.White,
+    secondaryContainer = SuccessGreenLight,
+    onSecondaryContainer = SuccessGreenDark,
+    tertiary = EmergencyCoral,
+    onTertiary = Color.White,
+    tertiaryContainer = EmergencyCoralLight,
+    onTertiaryContainer = EmergencyCoralDark,
+    background = PorcelainBackground,
+    onBackground = TextPrimaryLight,
+    surface = PorcelainSurface,
+    onSurface = TextPrimaryLight,
+    surfaceVariant = PorcelainSurfaceElevated,
+    onSurfaceVariant = TextSecondaryLight,
+    outline = PorcelainBorder,
+    outlineVariant = PorcelainBorder
 )
 
 @Composable
@@ -50,9 +58,10 @@ fun TapShieldTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    // TapShield enforces a sleek, discreet dark theme by default for tactical discretion & battery conservation
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+
     MaterialTheme(
-        colorScheme = DarkColorScheme,
+        colorScheme = colorScheme,
         typography = Typography,
         content = content
     )

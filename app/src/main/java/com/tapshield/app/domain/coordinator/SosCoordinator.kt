@@ -17,12 +17,16 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import com.tapshield.app.data.repository.ContactRepository
+import com.tapshield.app.domain.sms.SmsDispatcher
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.UUID
 
 class SosCoordinator(
     private val sosRepository: SosRepository,
+    private val contactRepository: ContactRepository? = null,
+    private val smsDispatcher: SmsDispatcher? = null,
     private val sosServiceLauncher: SosServiceLauncher? = null,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default
@@ -115,6 +119,7 @@ class SosCoordinator(
             DeliveryChannel.SMS to ChannelDeliveryState(
                 channel = DeliveryChannel.SMS,
                 status = DeliveryStatus.PENDING,
+                message = "Preparing emergency SMS dispatch...",
                 lastAttemptTimestamp = System.currentTimeMillis()
             )
         )
@@ -138,6 +143,48 @@ class SosCoordinator(
                 eventType = "SOS_TRIGGERED",
                 payloadJson = """{"source":"${source.name}","token":"$shareToken"}"""
             )
+
+            // Real SMS dispatch execution
+            if (smsDispatcher != null && contactRepository != null) {
+                try {
+                    val contacts = contactRepository.getAllContactsSync()
+                    val eligible = contacts.filter { it.notifyBySms }
+                    if (eligible.isEmpty()) {
+                        updateDeliveryStatus(
+                            channel = DeliveryChannel.SMS,
+                            status = DeliveryStatus.PENDING,
+                            message = "No trusted contacts configured with SMS alerts"
+                        )
+                    } else {
+                        updateDeliveryStatus(
+                            channel = DeliveryChannel.SMS,
+                            status = DeliveryStatus.PENDING,
+                            message = "Submitting SMS alerts to ${eligible.size} guardian(s)..."
+                        )
+                        val result = smsDispatcher.dispatchEmergencySms(
+                            session = session,
+                            contacts = contacts,
+                            location = session.lastLocation
+                        )
+                        updateDeliveryStatus(
+                            channel = DeliveryChannel.SMS,
+                            status = result.overallStatus,
+                            message = result.summaryMessage
+                        )
+                        sosRepository.recordPendingEvent(
+                            sessionId = sessionId,
+                            eventType = "SMS_DISPATCH_RESULT",
+                            payloadJson = """{"status":"${result.overallStatus}","summary":"${result.summaryMessage}"}"""
+                        )
+                    }
+                } catch (e: Exception) {
+                    updateDeliveryStatus(
+                        channel = DeliveryChannel.SMS,
+                        status = DeliveryStatus.FAILED,
+                        message = "SMS dispatch error: ${e.message}"
+                    )
+                }
+            }
         }
     }
 

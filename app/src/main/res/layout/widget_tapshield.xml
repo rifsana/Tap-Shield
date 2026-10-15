@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_background"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="16dp">
+
+    <!-- Left Info Column -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <!-- App Brand & Title -->
+        <TextView
+            android:id="@+id/widget_app_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TapShield"
+            android:textColor="#F9FAFB"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <!-- Status Badge -->
+        <TextView
+            android:id="@+id/widget_status_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/widget_badge_bg"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:text="READY • PROTECTED"
+            android:textColor="#18865B"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+
+        <!-- Subtitle instruction -->
+        <TextView
+            android:id="@+id/widget_subtext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:text="Tap SOS for 3s safety dispatch"
+            android:textColor="#94A3B8"
+            android:textSize="11sp" />
+
+    </LinearLayout>
+
+    <!-- Right SOS Trigger Button -->
+    <LinearLayout
+        android:id="@+id/widget_btn_sos"
+        android:layout_width="68dp"
+        android:layout_height="68dp"
+        android:layout_marginStart="12dp"
+        android:background="@drawable/widget_sos_btn"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/widget_sos_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SOS"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+</LinearLayout>

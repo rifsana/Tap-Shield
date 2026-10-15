@@ -1,7 +1,13 @@
 package com.tapshield.app.ui.screens
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,24 +22,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material.icons.filled.PowerSettingsNew
-import androidx.compose.material.icons.filled.Storage
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -46,15 +50,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.tapshield.app.domain.state.SosState
 import com.tapshield.app.ui.components.CountdownOverlay
 import com.tapshield.app.ui.components.EmergencyButton
-import com.tapshield.app.ui.components.StatusCard
-import com.tapshield.app.ui.theme.AmberWarning
-import com.tapshield.app.ui.theme.EmergencyRed
-import com.tapshield.app.ui.theme.ShieldCyan
-import com.tapshield.app.ui.theme.ShieldReadyGreen
-import com.tapshield.app.ui.theme.SurfaceElevatedDark
+import com.tapshield.app.ui.theme.AppRadius
+import com.tapshield.app.ui.theme.AppSpacing
+import com.tapshield.app.ui.theme.AttentionAmber
+import com.tapshield.app.ui.theme.EmergencyCoral
+import com.tapshield.app.ui.theme.SapphireBlue
+import com.tapshield.app.ui.theme.SuccessGreen
 import com.tapshield.app.ui.viewmodel.HomeViewModel
 
 @Composable
@@ -68,16 +73,16 @@ fun HomeScreen(
     val sosState by viewModel.sosState.collectAsState()
     val contactCount by viewModel.contactCount.collectAsState()
     val pendingEvents by viewModel.pendingEventsCount.collectAsState()
-    val isStealth by viewModel.isStealthDisguiseMode.collectAsState()
+    val context = LocalContext.current
+
     val isArmed = contactCount > 0
     val isCountingDown = sosState is SosState.Countdown
     val isActive = sosState is SosState.Active
-    val context = LocalContext.current
 
-    val permissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-        contract = androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions()
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
     ) {
-        // Permissions result handled
+        // Permissions updated
     }
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -85,134 +90,217 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(horizontal = 20.dp, vertical = 16.dp)
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = AppSpacing.lg, vertical = AppSpacing.base),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header: Title & Stealth Mode Toggle
+            // App Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
-                    Text(
-                        text = if (isStealth) "System Diagnostics" else "TapShield",
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Text(
-                        text = if (isStealth) "Hardware telemetry active" else "Discreet Personal Safety",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(AppRadius.shapeSm)
+                            .background(SapphireBlue.copy(alpha = 0.12f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Shield,
+                            contentDescription = null,
+                            tint = SapphireBlue,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(AppSpacing.md))
+                    Column {
+                        Text(
+                            text = "TapShield",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Text(
+                            text = "Personal Safety Network",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
 
-                IconButton(
-                    onClick = { viewModel.toggleStealthMode() }
+                // Readiness Status Pill
+                val statusBg = if (isActive) EmergencyCoral.copy(alpha = 0.12f)
+                else if (isArmed) SuccessGreen.copy(alpha = 0.12f)
+                else AttentionAmber.copy(alpha = 0.12f)
+
+                val statusBorder = if (isActive) EmergencyCoral.copy(alpha = 0.35f)
+                else if (isArmed) SuccessGreen.copy(alpha = 0.35f)
+                else AttentionAmber.copy(alpha = 0.35f)
+
+                val statusColor = if (isActive) EmergencyCoral
+                else if (isArmed) SuccessGreen
+                else AttentionAmber
+
+                val statusText = if (isActive) "SOS ACTIVE"
+                else if (isArmed) "PROTECTED"
+                else "SETUP NEEDED"
+
+                Surface(
+                    shape = AppRadius.shapePill,
+                    color = statusBg,
+                    border = BorderStroke(1.dp, statusBorder),
+                    modifier = Modifier.clickable {
+                        if (isActive) onNavigateToActiveSos()
+                        else if (!isArmed) onNavigateToContacts()
+                        else onNavigateToSetup()
+                    }
                 ) {
-                    Icon(
-                        imageVector = if (isStealth) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                        contentDescription = "Toggle Stealth Disguise",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .clip(CircleShape)
+                                .background(statusColor)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = statusText,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = statusColor
+                        )
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(AppSpacing.base))
 
-            // Active Alert Banner if emergency is live
+            // Active SOS Urgent Alert Banner (shown only when emergency is running)
             if (isActive) {
-                Box(
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(EmergencyRed)
-                        .clickable { onNavigateToActiveSos() }
-                        .padding(16.dp)
+                        .clickable { onNavigateToActiveSos() },
+                    shape = AppRadius.shapeMd,
+                    colors = CardDefaults.cardColors(containerColor = EmergencyCoral),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.padding(AppSpacing.base),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(Color.White.copy(alpha = 0.2f)),
+                            contentAlignment = Alignment.Center
+                        ) {
                             Icon(
                                 imageVector = Icons.Default.Warning,
                                 contentDescription = null,
                                 tint = Color.White,
-                                modifier = Modifier.size(28.dp)
+                                modifier = Modifier.size(20.dp)
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = "SOS SESSION ACTIVE",
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
-                                Text(
-                                    text = "Tap to open emergency dashboard",
-                                    fontSize = 12.sp,
-                                    color = Color.White.copy(alpha = 0.9f)
-                                )
-                            }
                         }
+                        Spacer(modifier = Modifier.width(AppSpacing.md))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Emergency Session Active",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Text(
+                                text = "Live location broadcast in progress • Tap to open",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White.copy(alpha = 0.9f)
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = "Open Active Session",
+                            tint = Color.White,
+                            modifier = Modifier.size(18.dp)
+                        )
                     }
                 }
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.base))
+            } else if (!isArmed) {
+                // Setup warning banner if 0 contacts
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onNavigateToContacts() },
+                    shape = AppRadius.shapeMd,
+                    colors = CardDefaults.cardColors(
+                        containerColor = AttentionAmber.copy(alpha = 0.08f)
+                    ),
+                    border = BorderStroke(1.dp, AttentionAmber.copy(alpha = 0.3f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(AppSpacing.base),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Group,
+                            contentDescription = null,
+                            tint = AttentionAmber,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(AppSpacing.md))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "No trusted contacts added",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "Add at least one guardian to receive your location during SOS",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(AppSpacing.base))
             }
 
-            // Readiness Card
-            StatusCard(
-                title = if (isStealth) "Device Status" else "Shield Readiness",
-                subtitle = when {
-                    !isArmed -> "Action needed: 0 trusted contacts added"
-                    isActive -> "Emergency broadcast live"
-                    else -> "Sensors armed • Ready for 1-tap activation"
-                },
-                icon = if (isArmed) Icons.Default.CheckCircle else Icons.Default.Info,
-                statusColor = if (isArmed) ShieldReadyGreen else AmberWarning,
-                statusLabel = if (isArmed) "ARMED" else "SETUP NEEDED",
-                trailingAction = if (!isArmed) {
-                    {
-                        Button(
-                            onClick = onNavigateToContacts,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = AmberWarning,
-                                contentColor = Color.Black
-                            ),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Text("Add Contacts", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                        }
-                    }
-                } else null
-            )
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
 
-            Spacer(modifier = Modifier.height(36.dp))
-
-            // Main Emergency Tactical Button
+            // Prominent Centerpiece: SOS Action
             EmergencyButton(
                 isArmed = isArmed,
                 isCountingDown = isCountingDown,
-                isStealthMode = isStealth,
                 onTrigger = {
                     if (isActive) {
                         onNavigateToActiveSos()
                     } else {
-                        val fineLocation = androidx.core.content.ContextCompat.checkSelfPermission(
+                        val fineLocation = ContextCompat.checkSelfPermission(
                             context,
-                            android.Manifest.permission.ACCESS_FINE_LOCATION
-                        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        ) == PackageManager.PERMISSION_GRANTED
 
                         if (!fineLocation) {
                             val perms = mutableListOf(
-                                android.Manifest.permission.ACCESS_FINE_LOCATION,
-                                android.Manifest.permission.ACCESS_COARSE_LOCATION
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION
                             )
-                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-                                perms.add(android.Manifest.permission.POST_NOTIFICATIONS)
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                perms.add(Manifest.permission.POST_NOTIFICATIONS)
                             }
                             permissionLauncher.launch(perms.toTypedArray())
                         }
@@ -221,92 +309,175 @@ fun HomeScreen(
                 }
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(AppSpacing.md))
 
             Text(
-                text = if (isStealth) "Tap to run hardware diagnostic" else "Tap for 3s safety countdown",
+                text = if (isCountingDown) "Tap to abort emergency dispatch"
+                else "Tap to initiate 3-second safety sequence",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(AppSpacing.xl))
 
-            // Telemetry Grid
-            Column(
+            // Consolidated Unified Preparedness Card
+            Card(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                shape = AppRadius.shapeMd,
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
             ) {
-                StatusCard(
-                    title = if (isStealth) "Location Service" else "GPS Tracker",
-                    subtitle = "High-accuracy fused provider standby",
-                    icon = Icons.Default.LocationOn,
-                    statusColor = ShieldCyan,
-                    statusLabel = "READY"
-                )
-
-                StatusCard(
-                    title = if (isStealth) "Disk Buffer" else "Offline Queue",
-                    subtitle = if (pendingEvents == 0) "All events synced" else "$pendingEvents events queued for retry",
-                    icon = Icons.Default.Storage,
-                    statusColor = if (pendingEvents == 0) ShieldReadyGreen else AmberWarning,
-                    statusLabel = if (pendingEvents == 0) "HEALTHY" else "$pendingEvents PENDING"
-                )
-
-                StatusCard(
-                    title = if (isStealth) "Contact Gateway" else "Trusted Guardians",
-                    subtitle = "$contactCount emergency contacts registered",
-                    icon = Icons.Default.Phone,
-                    statusColor = if (contactCount > 0) ShieldCyan else AmberWarning,
-                    statusLabel = "$contactCount SAVED"
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Emergency Helpline Shortcut (112 India)
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(SurfaceElevatedDark)
-                    .clickable {
-                        val callIntent = Intent(Intent.ACTION_DIAL).apply {
-                            data = Uri.parse("tel:112")
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    // Row 1: Trusted Contacts
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onNavigateToContacts() }
+                            .padding(AppSpacing.base),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(SapphireBlue.copy(alpha = 0.1f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Group,
+                                contentDescription = null,
+                                tint = SapphireBlue,
+                                modifier = Modifier.size(18.dp)
+                            )
                         }
-                        context.startActivity(callIntent)
+                        Spacer(modifier = Modifier.width(AppSpacing.md))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Trusted Guardians",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = if (contactCount == 0) "No guardians configured"
+                                else "$contactCount guardian${if (contactCount > 1) "s" else ""} will receive emergency alerts",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = "Manage Guardians",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(20.dp)
+                        )
                     }
-                    .padding(16.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Call,
-                        contentDescription = "Emergency Call",
-                        tint = EmergencyRed,
-                        modifier = Modifier.size(24.dp)
+
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = AppSpacing.base),
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outline
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = "Call Emergency Services (112)",
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurface
+
+                    // Row 2: Emergency 112 India Call
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                val callIntent = Intent(Intent.ACTION_DIAL).apply {
+                                    data = Uri.parse("tel:112")
+                                }
+                                context.startActivity(callIntent)
+                            }
+                            .padding(AppSpacing.base),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(EmergencyCoral.copy(alpha = 0.1f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Call,
+                                contentDescription = null,
+                                tint = EmergencyCoral,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(AppSpacing.md))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Emergency Services (112)",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "Direct dial to National Emergency Response Center",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = "Call 112",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(20.dp)
                         )
-                        Text(
-                            text = "India national emergency helpline",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                    }
+
+                    // Row 3: Offline Sync status (shown if queued events exist)
+                    if (pendingEvents > 0) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = AppSpacing.base),
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.outline
                         )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(AppSpacing.base),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(AttentionAmber.copy(alpha = 0.1f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Sync,
+                                    contentDescription = null,
+                                    tint = AttentionAmber,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(AppSpacing.md))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Offline Persistence",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = "$pendingEvents event${if (pendingEvents > 1) "s" else ""} queued in SQLite storage",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(AppSpacing.xl))
         }
 
-        // Overlay when Countdown is active
+        // Countdown Overlay
         if (sosState is SosState.Countdown) {
             val countdown = sosState as SosState.Countdown
             CountdownOverlay(

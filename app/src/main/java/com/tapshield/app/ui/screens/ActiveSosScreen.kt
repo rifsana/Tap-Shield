@@ -2,7 +2,6 @@ package com.tapshield.app.ui.screens
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -23,16 +22,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Message
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Message
-import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
@@ -40,10 +38,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -56,25 +56,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tapshield.app.domain.model.DeliveryChannel
 import com.tapshield.app.domain.model.DeliveryStatus
 import com.tapshield.app.domain.state.SosState
-import com.tapshield.app.ui.theme.AmberWarning
-import com.tapshield.app.ui.theme.EmergencyRed
-import com.tapshield.app.ui.theme.EmergencyRedContainer
-import com.tapshield.app.ui.theme.ShieldCyan
-import com.tapshield.app.ui.theme.ShieldReadyGreen
-import com.tapshield.app.ui.theme.SurfaceBorderDark
-import com.tapshield.app.ui.theme.SurfaceElevatedDark
+import com.tapshield.app.ui.theme.AppRadius
+import com.tapshield.app.ui.theme.AppSpacing
+import com.tapshield.app.ui.theme.AttentionAmber
+import com.tapshield.app.ui.theme.EmergencyCoral
+import com.tapshield.app.ui.theme.SapphireBlue
+import com.tapshield.app.ui.theme.SuccessGreen
 import com.tapshield.app.ui.viewmodel.ActiveSosViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -98,7 +98,7 @@ fun ActiveSosScreen(
                 modifier = modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
-                    .padding(24.dp),
+                    .padding(AppSpacing.xl),
                 contentAlignment = Alignment.Center
             ) {
                 Column(
@@ -107,48 +107,48 @@ fun ActiveSosScreen(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(72.dp)
+                            .size(64.dp)
                             .clip(CircleShape)
-                            .background(ShieldReadyGreen.copy(alpha = 0.15f)),
+                            .background(SuccessGreen.copy(alpha = 0.12f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Default.CheckCircle,
+                            imageVector = Icons.Default.Shield,
                             contentDescription = null,
-                            tint = ShieldReadyGreen,
-                            modifier = Modifier.size(40.dp)
+                            tint = SuccessGreen,
+                            modifier = Modifier.size(32.dp)
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(AppSpacing.base))
 
                     Text(
-                        text = "No Active Emergency",
+                        text = "System Standby",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onBackground
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(AppSpacing.xs))
 
                     Text(
-                        text = "TapShield is in standby. If you are in danger, activate SOS from the home screen, widget, or Quick Settings tile.",
+                        text = "No emergency session is currently active. TapShield is armed and ready for one-tap dispatch from the home screen, widget, or Quick Settings tile.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        textAlign = TextAlign.Center
                     )
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(AppSpacing.xl))
 
                     Button(
                         onClick = onNavigateHome,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = ShieldCyan,
-                            contentColor = Color.Black
+                            containerColor = SapphireBlue,
+                            contentColor = Color.White
                         ),
-                        shape = RoundedCornerShape(10.dp)
+                        shape = AppRadius.shapeSm
                     ) {
-                        Text("Return to Shield Dashboard", fontWeight = FontWeight.Bold)
+                        Text("Return to Dashboard", fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -159,7 +159,7 @@ fun ActiveSosScreen(
                 modifier = modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
-                    .padding(24.dp),
+                    .padding(AppSpacing.xl),
                 contentAlignment = Alignment.Center
             ) {
                 Column(
@@ -168,38 +168,38 @@ fun ActiveSosScreen(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(80.dp)
+                            .size(72.dp)
                             .clip(CircleShape)
-                            .background(ShieldReadyGreen.copy(alpha = 0.2f)),
+                            .background(SuccessGreen.copy(alpha = 0.14f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Check,
                             contentDescription = null,
-                            tint = ShieldReadyGreen,
-                            modifier = Modifier.size(44.dp)
+                            tint = SuccessGreen,
+                            modifier = Modifier.size(36.dp)
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(AppSpacing.base))
 
                     Text(
-                        text = "EMERGENCY RESOLVED",
+                        text = "Emergency Resolved",
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
-                        color = ShieldReadyGreen
+                        color = SuccessGreen
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(AppSpacing.xs))
 
                     Text(
-                        text = "Safe status logged. Location tracking has ceased and guardians notified.",
+                        text = "You are marked safe. Live location tracking has stopped, and your safe resolution status has been persisted.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        textAlign = TextAlign.Center
                     )
 
-                    Spacer(modifier = Modifier.height(28.dp))
+                    Spacer(modifier = Modifier.height(AppSpacing.xl))
 
                     Button(
                         onClick = {
@@ -207,12 +207,12 @@ fun ActiveSosScreen(
                             onNavigateHome()
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = ShieldReadyGreen,
-                            contentColor = Color.Black
+                            containerColor = SuccessGreen,
+                            contentColor = Color.White
                         ),
-                        shape = RoundedCornerShape(10.dp)
+                        shape = AppRadius.shapeSm
                     ) {
-                        Text("Back to Standby", fontWeight = FontWeight.Bold)
+                        Text("Return to Standby", fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -228,9 +228,9 @@ fun ActiveSosScreen(
             val infiniteTransition = rememberInfiniteTransition(label = "activePulse")
             val pulseScale by infiniteTransition.animateFloat(
                 initialValue = 1f,
-                targetValue = 1.08f,
+                targetValue = 1.05f,
                 animationSpec = infiniteRepeatable(
-                    animation = tween(800),
+                    animation = tween(1200),
                     repeatMode = RepeatMode.Reverse
                 ),
                 label = "pulse"
@@ -241,74 +241,72 @@ fun ActiveSosScreen(
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 20.dp, vertical = 16.dp),
+                    .padding(horizontal = AppSpacing.lg, vertical = AppSpacing.base),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Active Header Badge
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(
-                            Brush.verticalGradient(
-                                listOf(EmergencyRedContainer, Color(0xFF280505))
-                            )
-                        )
-                        .padding(20.dp),
-                    contentAlignment = Alignment.Center
+                // Emergency Header Card
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = AppRadius.shapeMd,
+                    colors = CardDefaults.cardColors(containerColor = EmergencyCoral),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Column(
+                        modifier = Modifier.padding(AppSpacing.base),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         Box(
                             modifier = Modifier
-                                .size(60.dp)
+                                .size(44.dp)
                                 .scale(pulseScale)
                                 .clip(CircleShape)
-                                .background(EmergencyRed),
+                                .background(Color.White.copy(alpha = 0.2f)),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Warning,
                                 contentDescription = null,
                                 tint = Color.White,
-                                modifier = Modifier.size(32.dp)
+                                modifier = Modifier.size(24.dp)
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(AppSpacing.sm))
 
                         Text(
                             text = "SOS BROADCAST ACTIVE",
-                            fontSize = 20.sp,
+                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Black,
-                            color = EmergencyRed
+                            color = Color.White,
+                            letterSpacing = 0.5.sp
                         )
 
                         Text(
                             text = "Elapsed Time: $formattedTime",
                             fontFamily = FontFamily.Monospace,
-                            fontSize = 16.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
 
                         Text(
-                            text = "Trigger: ${session.triggerSource.name}",
-                            fontSize = 12.sp,
-                            color = Color.White.copy(alpha = 0.7f)
+                            text = "Triggered via ${session.triggerSource.name.replace("_", " ")}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White.copy(alpha = 0.85f)
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.base))
 
-                // GPS Location Data Card
+                // GPS Telemetry Card
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = SurfaceElevatedDark),
-                    border = BorderStroke(1.dp, SurfaceBorderDark)
+                    shape = AppRadius.shapeMd,
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
+                    Column(modifier = Modifier.padding(AppSpacing.base)) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -318,225 +316,249 @@ fun ActiveSosScreen(
                                 Icon(
                                     imageVector = Icons.Default.LocationOn,
                                     contentDescription = null,
-                                    tint = ShieldCyan,
-                                    modifier = Modifier.size(20.dp)
+                                    tint = SapphireBlue,
+                                    modifier = Modifier.size(18.dp)
                                 )
-                                Spacer(modifier = Modifier.width(8.dp))
+                                Spacer(modifier = Modifier.width(AppSpacing.sm))
                                 Text(
-                                    text = "Live Location",
-                                    fontWeight = FontWeight.Bold,
+                                    text = "Live GPS Telemetry",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                             }
 
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .background(ShieldReadyGreen.copy(alpha = 0.2f))
-                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            val loc = session.lastLocation
+                            Surface(
+                                shape = AppRadius.shapePill,
+                                color = if (loc != null) SuccessGreen.copy(alpha = 0.12f) else AttentionAmber.copy(alpha = 0.12f)
                             ) {
                                 Text(
-                                    text = "ACQUIRING",
+                                    text = if (loc != null) "SATELLITE LOCK" else "ACQUIRING FIX",
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = ShieldReadyGreen
+                                    color = if (loc != null) SuccessGreen else AttentionAmber,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                                 )
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(AppSpacing.sm))
 
                         val loc = session.lastLocation
                         if (loc != null) {
                             val timeStr = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date(loc.timestamp))
                             Text(
-                                text = "Lat: ${String.format(Locale.US, "%.5f", loc.latitude)}, Lng: ${String.format(Locale.US, "%.5f", loc.longitude)}",
+                                text = "Coordinates: ${String.format(Locale.US, "%.5f", loc.latitude)}, ${String.format(Locale.US, "%.5f", loc.longitude)}",
                                 fontFamily = FontFamily.Monospace,
-                                fontSize = 14.sp,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
+                            Spacer(modifier = Modifier.height(AppSpacing.xs))
                             Text(
-                                text = "Accuracy: ±${loc.accuracyMeters.toInt()}m • Updated: $timeStr",
-                                fontSize = 12.sp,
+                                text = "Accuracy: ±${loc.accuracyMeters.toInt()}m • Fix: $timeStr • Stream count: ${session.locationHistoryCount}",
+                                style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         } else {
                             Text(
-                                text = "Waiting for initial GPS fix...",
-                                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-                                fontSize = 13.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Multi-Channel Delivery Matrix
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = SurfaceElevatedDark),
-                    border = BorderStroke(1.dp, SurfaceBorderDark)
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "Delivery Channels",
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        // Local SQLite
-                        DeliveryRow(
-                            icon = Icons.Default.Storage,
-                            label = "Local Storage (Room)",
-                            status = "SAVED",
-                            statusColor = ShieldReadyGreen
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        // Cloud Live Link
-                        DeliveryRow(
-                            icon = Icons.Default.Cloud,
-                            label = "Cloud Realtime Sync",
-                            status = "CONNECTED",
-                            statusColor = ShieldCyan
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        // SMS Dispatch
-                        DeliveryRow(
-                            icon = Icons.Default.Message,
-                            label = "SMS Alert Fallback",
-                            status = "DISPATCHING",
-                            statusColor = AmberWarning
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Public Live Location Link Card
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = SurfaceElevatedDark),
-                    border = BorderStroke(1.dp, SurfaceBorderDark)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(14.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "Emergency Web Tracking Link",
+                                text = "Acquiring high-precision GPS lock from satellites and cell towers. Coordinates will stream automatically once acquired.",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                            Text(
-                                text = shareUrl,
-                                fontFamily = FontFamily.Monospace,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = ShieldCyan
-                            )
-                        }
-
-                        IconButton(
-                            onClick = {
-                                clipboardManager.setText(AnnotatedString(shareUrl))
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Share,
-                                contentDescription = "Copy Link",
-                                tint = ShieldCyan
-                            )
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(28.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.base))
 
-                // Emergency Call Action (112)
+                // Multi-Channel Delivery Status Card
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = AppRadius.shapeMd,
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                ) {
+                    Column(modifier = Modifier.padding(AppSpacing.base)) {
+                        Text(
+                            text = "Emergency Delivery Channels",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(modifier = Modifier.height(AppSpacing.md))
+
+                        // 1. Local SQLite Persistence
+                        val localState = session.deliveryStates[DeliveryChannel.LOCAL_PERSISTENCE]
+                        DeliveryChannelRow(
+                            icon = Icons.Default.Storage,
+                            label = "Local Storage (Room)",
+                            statusText = localState?.message ?: "Persisted to secure offline SQLite",
+                            statusColor = SuccessGreen,
+                            badge = "COMMITTED"
+                        )
+
+                        HorizontalDivider(
+                            modifier = Modifier.padding(vertical = AppSpacing.sm),
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.outline
+                        )
+
+                        // 2. Cloud Realtime Tracking Link
+                        DeliveryChannelRow(
+                            icon = Icons.Default.Cloud,
+                            label = "Guardian Web Viewer",
+                            statusText = shareUrl,
+                            statusColor = SapphireBlue,
+                            badge = "ACTIVE",
+                            trailingAction = {
+                                IconButton(
+                                    onClick = {
+                                        clipboardManager.setText(AnnotatedString(shareUrl))
+                                    },
+                                    modifier = Modifier.size(28.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.ContentCopy,
+                                        contentDescription = "Copy Tracking Link",
+                                        tint = SapphireBlue,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
+                        )
+
+                        HorizontalDivider(
+                            modifier = Modifier.padding(vertical = AppSpacing.sm),
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.outline
+                        )
+
+                        // 3. Real Cellular SMS Channel
+                        val smsDelivery = session.deliveryStates[DeliveryChannel.SMS]
+                        val (smsColor, smsBadge) = when (smsDelivery?.status) {
+                            DeliveryStatus.SENT, DeliveryStatus.DELIVERED -> SuccessGreen to "SUBMITTED"
+                            DeliveryStatus.SKIPPED_NO_PERMISSION -> AttentionAmber to "PERMISSION NEEDED"
+                            DeliveryStatus.FAILED -> EmergencyCoral to "FAILED"
+                            DeliveryStatus.PENDING -> SapphireBlue to "IN PROGRESS"
+                            else -> MaterialTheme.colorScheme.onSurfaceVariant to "PENDING"
+                        }
+
+                        DeliveryChannelRow(
+                            icon = Icons.AutoMirrored.Filled.Message,
+                            label = "Cellular SMS Alert",
+                            statusText = smsDelivery?.message ?: "Preparing emergency SMS broadcast...",
+                            statusColor = smsColor,
+                            badge = smsBadge
+                        )
+
+                        // If direct SMS was not permitted or failed, offer quick manual fallback intent
+                        if (smsDelivery?.status == DeliveryStatus.SKIPPED_NO_PERMISSION || smsDelivery?.status == DeliveryStatus.FAILED) {
+                            Spacer(modifier = Modifier.height(AppSpacing.sm))
+                            OutlinedButton(
+                                onClick = {
+                                    val sendIntent = Intent(Intent.ACTION_SENDTO).apply {
+                                        data = Uri.parse("smsto:")
+                                        putExtra(
+                                            "sms_body",
+                                            "EMERGENCY SOS: I need help! Live tracker: $shareUrl - Sent via TapShield"
+                                        )
+                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                    }
+                                    context.startActivity(sendIntent)
+                                },
+                                shape = AppRadius.shapeSm,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Open System SMS App Fallback", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
+
+                // Primary Safety Resolution Action: "I AM SAFE"
                 Button(
+                    onClick = { showSafeConfirmDialog = true },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = SuccessGreen,
+                        contentColor = Color.White
+                    ),
+                    shape = AppRadius.shapeSm,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                ) {
+                    Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(AppSpacing.sm))
+                    Text(
+                        text = "I AM SAFE (STOP TRACKING)",
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.5.sp
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(AppSpacing.md))
+
+                // Emergency Call Action: 112 India
+                OutlinedButton(
                     onClick = {
                         val callIntent = Intent(Intent.ACTION_DIAL).apply {
                             data = Uri.parse("tel:112")
                         }
                         context.startActivity(callIntent)
                     },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = EmergencyRedContainer,
-                        contentColor = EmergencyRed
-                    ),
-                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.dp, EmergencyCoral),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = EmergencyCoral),
+                    shape = AppRadius.shapeSm,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(52.dp)
+                        .height(48.dp)
                 ) {
-                    Icon(Icons.Default.Call, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Call Police / Emergency (112)", fontWeight = FontWeight.Bold)
+                    Icon(Icons.Default.Call, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(AppSpacing.sm))
+                    Text("Call National Emergency (112)", fontWeight = FontWeight.SemiBold)
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
-
-                // "I AM SAFE" Resolution Action
-                Button(
-                    onClick = { showSafeConfirmDialog = true },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = ShieldReadyGreen,
-                        contentColor = Color.Black
-                    ),
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp)
-                ) {
-                    Icon(Icons.Default.CheckCircle, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("I AM SAFE - RESOLVE EMERGENCY", fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                }
-
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(AppSpacing.xl))
             }
 
+            // Safe Confirmation Dialog
             if (showSafeConfirmDialog) {
                 AlertDialog(
                     onDismissRequest = { showSafeConfirmDialog = false },
                     title = {
-                        Text("Confirm You Are Safe", fontWeight = FontWeight.Bold)
+                        Text(
+                            text = "Resolve Emergency Session?",
+                            fontWeight = FontWeight.Bold
+                        )
                     },
                     text = {
-                        Text("This will stop live GPS tracking and broadcast an \"I Am Safe\" resolution notification to all your trusted contacts.")
+                        Text("This will stop live GPS tracking, notify your guardians that you are safe, and conclude the emergency broadcast.")
                     },
                     confirmButton = {
                         Button(
                             onClick = {
                                 showSafeConfirmDialog = false
-                                viewModel.markSafe()
+                                viewModel.markSafe("User marked safe from Active SOS screen")
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = ShieldReadyGreen,
-                                contentColor = Color.Black
-                            )
+                                containerColor = SuccessGreen,
+                                contentColor = Color.White
+                            ),
+                            shape = AppRadius.shapeSm
                         ) {
-                            Text("Yes, I'm Safe", fontWeight = FontWeight.Bold)
+                            Text("Confirm Safe", fontWeight = FontWeight.Bold)
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { showSafeConfirmDialog = false }) {
-                            Text("Cancel")
+                            Text("Keep Active")
                         }
                     },
-                    containerColor = SurfaceElevatedDark
+                    shape = AppRadius.shapeMd
                 )
             }
         }
@@ -544,44 +566,68 @@ fun ActiveSosScreen(
 }
 
 @Composable
-private fun DeliveryRow(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+private fun DeliveryChannelRow(
+    icon: ImageVector,
     label: String,
-    status: String,
-    statusColor: Color
+    statusText: String,
+    statusColor: Color,
+    badge: String,
+    trailingAction: @Composable (() -> Unit)? = null
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(CircleShape)
+                .background(statusColor.copy(alpha = 0.1f)),
+            contentAlignment = Alignment.Center
+        ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = statusColor,
                 modifier = Modifier.size(18.dp)
             )
-            Spacer(modifier = Modifier.width(10.dp))
+        }
+        Spacer(modifier = Modifier.width(AppSpacing.md))
+        Column(modifier = Modifier.weight(1f)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Surface(
+                    shape = AppRadius.shapePill,
+                    color = statusColor.copy(alpha = 0.12f)
+                ) {
+                    Text(
+                        text = badge,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = statusColor,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = label,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                text = statusText,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(4.dp))
-                .background(statusColor.copy(alpha = 0.15f))
-                .padding(horizontal = 6.dp, vertical = 2.dp)
-        ) {
-            Text(
-                text = status,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
-                color = statusColor
-            )
+        if (trailingAction != null) {
+            Spacer(modifier = Modifier.width(AppSpacing.xs))
+            trailingAction()
         }
     }
 }

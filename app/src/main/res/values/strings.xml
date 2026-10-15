@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">TapShield</string>
+    <string name="tile_sos_label">TapShield SOS</string>
 </resources>

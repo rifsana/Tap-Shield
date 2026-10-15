@@ -34,9 +34,9 @@ import com.tapshield.app.ui.screens.ActiveSosScreen
 import com.tapshield.app.ui.screens.ContactsScreen
 import com.tapshield.app.ui.screens.HomeScreen
 import com.tapshield.app.ui.screens.SafetySetupScreen
-import com.tapshield.app.ui.theme.EmergencyRed
-import com.tapshield.app.ui.theme.ShieldCyan
-import com.tapshield.app.ui.theme.SurfaceElevatedDark
+import androidx.compose.ui.text.font.FontWeight
+import com.tapshield.app.ui.theme.EmergencyCoral
+import com.tapshield.app.ui.theme.SapphireBlue
 import com.tapshield.app.ui.viewmodel.ActiveSosViewModel
 import com.tapshield.app.ui.viewmodel.ContactsViewModel
 import com.tapshield.app.ui.viewmodel.HomeViewModel
@@ -73,8 +73,9 @@ fun TapShieldNavGraph(
     Scaffold(
         bottomBar = {
             NavigationBar(
-                containerColor = SurfaceElevatedDark,
-                contentColor = MaterialTheme.colorScheme.onSurface
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                tonalElevation = 3.dp
             ) {
                 Screen.bottomNavItems.forEach { screen ->
                     val selected = currentRoute == screen.route
@@ -95,7 +96,7 @@ fun TapShieldNavGraph(
                             if (isSosTab && isEmergencyActive) {
                                 BadgedBox(
                                     badge = {
-                                        Badge(containerColor = EmergencyRed)
+                                        Badge(containerColor = EmergencyCoral)
                                     }
                                 ) {
                                     Icon(
@@ -113,13 +114,15 @@ fun TapShieldNavGraph(
                         label = {
                             Text(
                                 text = screen.title,
-                                color = if (selected) ShieldCyan else MaterialTheme.colorScheme.onSurfaceVariant
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                                color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         },
                         colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = if (isSosTab && isEmergencyActive) EmergencyRed else ShieldCyan,
+                            selectedIconColor = if (isSosTab && isEmergencyActive) EmergencyCoral else MaterialTheme.colorScheme.primary,
                             unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            indicatorColor = if (isSosTab && isEmergencyActive) EmergencyRed.copy(alpha = 0.2f) else ShieldCyan.copy(alpha = 0.15f)
+                            indicatorColor = if (isSosTab && isEmergencyActive) EmergencyCoral.copy(alpha = 0.15f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
                         )
                     )
                 }

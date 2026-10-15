@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
@@ -25,16 +24,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.BatteryChargingFull
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.PhoneAndroid
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material3.Button
@@ -45,6 +43,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -56,16 +55,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import com.tapshield.app.ui.theme.AmberWarning
-import com.tapshield.app.ui.theme.ShieldCyan
-import com.tapshield.app.ui.theme.ShieldReadyGreen
-import com.tapshield.app.ui.theme.SurfaceBorderDark
-import com.tapshield.app.ui.theme.SurfaceElevatedDark
+import com.tapshield.app.ui.theme.AppRadius
+import com.tapshield.app.ui.theme.AppSpacing
+import com.tapshield.app.ui.theme.AttentionAmber
+import com.tapshield.app.ui.theme.SapphireBlue
+import com.tapshield.app.ui.theme.SuccessGreen
 import com.tapshield.app.ui.viewmodel.SafetySetupViewModel
 
 @Composable
@@ -90,7 +90,7 @@ fun SafetySetupScreen(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 20.dp, vertical = 16.dp)
+            .padding(horizontal = AppSpacing.lg, vertical = AppSpacing.base)
             .verticalScroll(rememberScrollState())
     ) {
         Text(
@@ -100,37 +100,37 @@ fun SafetySetupScreen(
             color = MaterialTheme.colorScheme.onBackground
         )
         Text(
-            text = "Verify critical permissions and emergency triggers for maximum reliability",
+            text = "Verify device permissions and quick triggers for maximum emergency reliability",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(AppSpacing.base))
 
-        // Statutory notice regarding Emergency 112 (India)
+        // Statutory Notice (Emergency 112 India)
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = SurfaceElevatedDark),
-            border = BorderStroke(1.dp, ShieldCyan.copy(alpha = 0.4f))
+            shape = AppRadius.shapeMd,
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = BorderStroke(1.dp, SapphireBlue.copy(alpha = 0.35f))
         ) {
             Row(
-                modifier = Modifier.padding(14.dp),
+                modifier = Modifier.padding(AppSpacing.base),
                 verticalAlignment = Alignment.Top
             ) {
                 Icon(
                     imageVector = Icons.Default.Info,
                     contentDescription = null,
-                    tint = ShieldCyan,
+                    tint = SapphireBlue,
                     modifier = Modifier.size(20.dp)
                 )
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(AppSpacing.sm))
                 Column {
                     Text(
                         text = "Emergency Services Notice (India)",
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
-                        color = ShieldCyan
+                        color = SapphireBlue
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
@@ -142,20 +142,20 @@ fun SafetySetupScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(AppSpacing.xl))
 
         Text(
-            text = "SYSTEM PERMISSIONS",
+            text = "REQUIRED PERMISSIONS",
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
-            color = ShieldCyan
+            color = SapphireBlue
         )
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
 
-        // Permissions Checklist
+        // 1. High-Accuracy GPS
         PermissionRow(
             title = "High-Accuracy GPS",
-            description = "Required to pinpoint coordinates during active SOS",
+            description = "Acquires real-time coordinates to stream to your guardians during an emergency",
             isGranted = state.hasFineLocationPermission,
             icon = Icons.Default.LocationOn,
             onRequest = {
@@ -167,11 +167,12 @@ fun SafetySetupScreen(
             }
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
 
+        // 2. Persistent Notifications
         PermissionRow(
-            title = "Foreground Notifications",
-            description = "Ensures background location tracking continues uninterrupted",
+            title = "Emergency Notifications",
+            description = "Maintains persistent foreground service to track location while device screen is locked",
             isGranted = state.hasNotificationPermission,
             icon = Icons.Default.Notifications,
             onRequest = {
@@ -181,35 +182,36 @@ fun SafetySetupScreen(
             }
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
 
+        // 3. Cellular SMS Dispatch
         PermissionRow(
-            title = "SMS Dispatch Permission",
-            description = "Sends emergency alert coordinates when internet is offline",
+            title = "Cellular SMS Alerts",
+            description = "Dispatches SMS emergency alert with live GPS coordinates to guardians when offline",
             isGranted = state.hasSmsPermission,
-            icon = Icons.Default.Send,
+            icon = Icons.AutoMirrored.Filled.Send,
             onRequest = {
                 permissionLauncher.launch(arrayOf(Manifest.permission.SEND_SMS))
             }
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(AppSpacing.xl))
 
         Text(
-            text = "BACKGROUND & POWER OPTIMIZATION",
+            text = "BACKGROUND RELIABILITY",
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
-            color = ShieldCyan
+            color = SapphireBlue
         )
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
 
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(containerColor = SurfaceElevatedDark),
-            border = BorderStroke(1.dp, SurfaceBorderDark)
+            shape = AppRadius.shapeMd,
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(AppSpacing.base)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
@@ -217,20 +219,20 @@ fun SafetySetupScreen(
                     Icon(
                         imageVector = Icons.Default.BatteryChargingFull,
                         contentDescription = null,
-                        tint = if (state.isBatteryOptimizationIgnored) ShieldReadyGreen else AmberWarning
+                        tint = if (state.isBatteryOptimizationIgnored) SuccessGreen else AttentionAmber
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(AppSpacing.md))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Unrestricted Background Running",
+                            text = "Battery Optimization Exemption",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
                             text = if (state.isBatteryOptimizationIgnored)
-                                "Exempt from system battery killer"
-                            else "Device may stop emergency tracking when screen is locked",
+                                "Unrestricted background running granted"
+                            else "Device power saver may restrict tracking when screen is locked",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -238,54 +240,54 @@ fun SafetySetupScreen(
                 }
 
                 if (!state.isBatteryOptimizationIgnored) {
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(AppSpacing.md))
                     Button(
                         onClick = {
                             val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
                             context.startActivity(intent)
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = ShieldCyan,
-                            contentColor = Color.Black
+                            containerColor = SapphireBlue,
+                            contentColor = Color.White
                         ),
-                        shape = RoundedCornerShape(8.dp)
+                        shape = AppRadius.shapeSm
                     ) {
-                        Text("Disable Battery Restrictions", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        Text("Disable Battery Limits", fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
                     }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(AppSpacing.xl))
 
         Text(
-            text = "FAST ACTIVATION ENTRY POINTS",
+            text = "QUICK EMERGENCY ENTRY POINTS",
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
-            color = ShieldCyan
+            color = SapphireBlue
         )
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
 
-        // Widget Guide Card
+        // Home Screen Widget
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(containerColor = SurfaceElevatedDark),
-            border = BorderStroke(1.dp, SurfaceBorderDark)
+            shape = AppRadius.shapeMd,
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(AppSpacing.base),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = Icons.Default.Widgets,
                     contentDescription = null,
-                    tint = ShieldCyan,
-                    modifier = Modifier.size(28.dp)
+                    tint = SapphireBlue,
+                    modifier = Modifier.size(24.dp)
                 )
-                Spacer(modifier = Modifier.width(14.dp))
+                Spacer(modifier = Modifier.width(AppSpacing.md))
                 Column {
                     Text(
                         text = "Home Screen Widget",
@@ -294,7 +296,7 @@ fun SafetySetupScreen(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "Long press your home screen -> Tap Widgets -> Select TapShield SOS Button for instant 1-tap emergency dispatch.",
+                        text = "Long press home space -> Widgets -> TapShield SOS for instant one-tap trigger.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -302,28 +304,28 @@ fun SafetySetupScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
 
-        // Quick Settings Tile Card
+        // Quick Settings Tile
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(containerColor = SurfaceElevatedDark),
-            border = BorderStroke(1.dp, SurfaceBorderDark)
+            shape = AppRadius.shapeMd,
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(AppSpacing.base),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = Icons.Default.PhoneAndroid,
                     contentDescription = null,
-                    tint = ShieldCyan,
-                    modifier = Modifier.size(28.dp)
+                    tint = SapphireBlue,
+                    modifier = Modifier.size(24.dp)
                 )
-                Spacer(modifier = Modifier.width(14.dp))
+                Spacer(modifier = Modifier.width(AppSpacing.md))
                 Column {
                     Text(
                         text = "Quick Settings Tile",
@@ -332,7 +334,7 @@ fun SafetySetupScreen(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "Swipe down notifications -> Tap Edit (Pencil) -> Drag 'TapShield SOS' into active tiles for locked-screen access.",
+                        text = "Swipe down notifications -> Tap Edit (Pencil) -> Add TapShield SOS tile for locked-screen emergency access.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -340,24 +342,24 @@ fun SafetySetupScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(AppSpacing.xl))
 
-        // Shake Trigger Experimental Section
+        // Experimental Shake Trigger
         Text(
-            text = "EXPERIMENTAL MOTION TRIGGER",
+            text = "EXPERIMENTAL GESTURE TRIGGER",
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
-            color = ShieldCyan
+            color = SapphireBlue
         )
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
 
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(containerColor = SurfaceElevatedDark),
-            border = BorderStroke(1.dp, SurfaceBorderDark)
+            shape = AppRadius.shapeMd,
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(AppSpacing.base)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -367,18 +369,18 @@ fun SafetySetupScreen(
                         Icon(
                             imageVector = Icons.Default.Vibration,
                             contentDescription = null,
-                            tint = ShieldCyan
+                            tint = SapphireBlue
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(AppSpacing.md))
                         Column {
                             Text(
-                                text = "Shake-to-SOS Trigger",
+                                text = "Shake-to-Trigger",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
-                                text = "Configurable multi-axis shake detection",
+                                text = "Multi-axis accelerometer emergency trigger",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -388,15 +390,15 @@ fun SafetySetupScreen(
                     Switch(
                         checked = state.shakeTriggerEnabled,
                         onCheckedChange = { viewModel.toggleShakeTrigger(it) },
-                        colors = SwitchDefaults.colors(checkedThumbColor = ShieldCyan)
+                        colors = SwitchDefaults.colors(checkedThumbColor = SapphireBlue)
                     )
                 }
 
                 if (state.shakeTriggerEnabled) {
-                    Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.height(AppSpacing.md))
                     val sensitivityText = String.format(java.util.Locale.US, "%.1f", state.shakeSensitivity)
                     Text(
-                        text = "Trigger Sensitivity: $sensitivityText G",
+                        text = "Sensitivity Threshold: $sensitivityText G",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -406,12 +408,12 @@ fun SafetySetupScreen(
                         valueRange = 1.5f..4.5f,
                         steps = 5,
                         colors = SliderDefaults.colors(
-                            thumbColor = ShieldCyan,
-                            activeTrackColor = ShieldCyan
+                            thumbColor = SapphireBlue,
+                            activeTrackColor = SapphireBlue
                         )
                     )
                     Text(
-                        text = "Higher threshold prevents accidental false triggers while jogging or moving.",
+                        text = "Higher thresholds prevent false triggers from jogging or bumpy commutes.",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -419,7 +421,7 @@ fun SafetySetupScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(AppSpacing.xxl))
     }
 }
 
@@ -465,40 +467,40 @@ private fun PermissionRow(
     title: String,
     description: String,
     isGranted: Boolean,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     onRequest: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceElevatedDark),
-        border = BorderStroke(1.dp, SurfaceBorderDark)
+        shape = AppRadius.shapeMd,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp),
+                .padding(AppSpacing.base),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(36.dp)
                     .clip(CircleShape)
                     .background(
-                        if (isGranted) ShieldReadyGreen.copy(alpha = 0.15f)
-                        else AmberWarning.copy(alpha = 0.15f)
+                        if (isGranted) SuccessGreen.copy(alpha = 0.12f)
+                        else AttentionAmber.copy(alpha = 0.12f)
                     ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = if (isGranted) ShieldReadyGreen else AmberWarning,
-                    modifier = Modifier.size(20.dp)
+                    tint = if (isGranted) SuccessGreen else AttentionAmber,
+                    modifier = Modifier.size(18.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(AppSpacing.md))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -515,25 +517,26 @@ private fun PermissionRow(
             }
 
             if (isGranted) {
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(ShieldReadyGreen.copy(alpha = 0.2f))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                Surface(
+                    shape = AppRadius.shapePill,
+                    color = SuccessGreen.copy(alpha = 0.12f)
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Icon(
                             imageVector = Icons.Default.Check,
                             contentDescription = null,
-                            tint = ShieldReadyGreen,
+                            tint = SuccessGreen,
                             modifier = Modifier.size(12.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "ACTIVE",
+                            text = "GRANTED",
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
-                            color = ShieldReadyGreen
+                            color = SuccessGreen
                         )
                     }
                 }
@@ -541,12 +544,12 @@ private fun PermissionRow(
                 Button(
                     onClick = onRequest,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = ShieldCyan,
-                        contentColor = Color.Black
+                        containerColor = SapphireBlue,
+                        contentColor = Color.White
                     ),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = AppRadius.shapeSm
                 ) {
-                    Text("Enable", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text("Grant", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
         }

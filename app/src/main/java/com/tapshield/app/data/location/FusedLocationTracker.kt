@@ -82,20 +82,30 @@ class FusedLocationTracker(
             .setMaxUpdateDelayMillis(8000L)
             .build()
 
+        var lastAvailabilityAvailable: Boolean? = null
+
         val callback = object : LocationCallback() {
             override fun onLocationResult(result: GmsLocationResult) {
                 val last = result.lastLocation
                 if (last != null) {
+                    lastAvailabilityAvailable = true
                     trySend(LocationResult.Success(last.toLocationPoint()))
                 }
             }
 
             override fun onLocationAvailability(availability: com.google.android.gms.location.LocationAvailability) {
-                if (!availability.isLocationAvailable) {
+                val isAvailable = availability.isLocationAvailable
+                if (lastAvailabilityAvailable == isAvailable) {
+                    // Suppress duplicate availability notifications when state has not transitioned
+                    return
+                }
+                lastAvailabilityAvailable = isAvailable
+
+                if (!isAvailable) {
                     if (!isGpsEnabled()) {
                         trySend(LocationResult.Error(LocationErrorType.GPS_DISABLED, "Location hardware unavailable or disabled"))
                     } else {
-                        trySend(LocationResult.Error(LocationErrorType.UNAVAILABLE, "GPS signal weak or unavailable"))
+                        trySend(LocationResult.Error(LocationErrorType.UNAVAILABLE, "Acquiring GPS fix (satellite search in progress)"))
                     }
                 }
             }

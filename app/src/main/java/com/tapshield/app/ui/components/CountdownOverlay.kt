@@ -21,9 +21,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.tapshield.app.ui.theme.EmergencyRed
+import com.tapshield.app.ui.theme.EmergencyCoral
 
 @Composable
 fun CountdownOverlay(
@@ -34,8 +35,8 @@ fun CountdownOverlay(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.88f))
-            .padding(24.dp),
+            .background(Color.Black.copy(alpha = 0.92f))
+            .padding(horizontal = 24.dp, vertical = 32.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -43,39 +44,42 @@ fun CountdownOverlay(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = "EMERGENCY ACTIVATION",
-                style = MaterialTheme.typography.titleLarge,
+                text = "Emergency Alert Initiated",
+                style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                color = EmergencyRed
+                color = Color.White
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Dispatching location to trusted contacts in:",
+                text = "Live location broadcast and guardian alerts will commence in:",
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.8f)
+                color = Color.White.copy(alpha = 0.75f),
+                textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(36.dp))
 
+            // Large, clear countdown circle
             Box(
                 modifier = Modifier
-                    .size(140.dp)
+                    .size(130.dp)
                     .clip(CircleShape)
-                    .background(EmergencyRed.copy(alpha = 0.15f)),
+                    .background(EmergencyCoral.copy(alpha = 0.16f)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = "$secondsRemaining",
-                    fontSize = 72.sp,
+                    fontSize = 64.sp,
                     fontWeight = FontWeight.Black,
-                    color = EmergencyRed
+                    color = EmergencyCoral
                 )
             }
 
             Spacer(modifier = Modifier.height(48.dp))
 
+            // Generous touch-target cancel button
             Button(
                 onClick = onCancel,
                 colors = ButtonDefaults.buttonColors(
@@ -89,10 +93,20 @@ fun CountdownOverlay(
             ) {
                 Text(
                     text = "CANCEL ACTIVATION",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.5.sp
+                    )
                 )
             }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Text(
+                text = "Tap to cancel if activated accidentally",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.White.copy(alpha = 0.6f)
+            )
         }
     }
 }
